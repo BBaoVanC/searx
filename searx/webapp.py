@@ -1067,7 +1067,8 @@ def config():
         'version': VERSION_STRING,
         'brand': {
             'GIT_URL': brand.GIT_URL,
-            'DOCS_URL': brand.DOCS_URL
+            'DOCS_URL': brand.DOCS_URL,
+            'CONTACT_URL': brand.CONTACT_URL
         },
         'doi_resolvers': [r for r in settings['doi_resolvers']],
         'default_doi_resolver': settings['default_doi_resolver'],
