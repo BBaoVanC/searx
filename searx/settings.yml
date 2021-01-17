@@ -146,7 +146,6 @@ engines:
   - name : arch linux wiki
     engine : archlinux
     shortcut : aw
-    disabled : True
 
   - name : archive is
     engine : xpath
