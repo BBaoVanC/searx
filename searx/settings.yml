@@ -1,6 +1,6 @@
 general:
     debug : False # Debug mode, only for development
-    instance_name : "searx" # displayed name
+    instance_name : "bbaovanc's searx" # displayed name
     contact_url: "mailto:searx-contact@bbaovanc.com" # mailto:contact@example.com
 
 brand:
@@ -13,7 +13,7 @@ brand:
     twitter_url: https://twitter.com/Searx_engine
 
 search:
-    safe_search : 0 # Filter results. 0: None, 1: Moderate, 2: Strict
+    safe_search : 1 # Filter results. 0: None, 1: Moderate, 2: Strict
     autocomplete : "" # Existing autocomplete backends: "dbpedia", "duckduckgo", "google", "startpage", "swisscows", "qwant", "wikipedia" - leave blank to turn it off by default
     default_lang : "" # Default search language - leave blank to detect from browser information or use codes from 'languages.py'
     ban_time_on_fail : 5 # ban time in seconds after engine errors
@@ -40,8 +40,8 @@ ui:
     default_theme : oscar # ui theme
     default_locale : "" # Default interface locale - leave blank to detect from browser information or use codes from the 'locales' config section
     theme_args :
-        oscar_style : logicodev # default style of oscar
-#   results_on_new_tab: False  # Open result links in a new tab by default
+        oscar_style : logicodev-dark # default style of oscar
+   results_on_new_tab: True  # Open result links in a new tab by default
 #   categories_order :
 #     - general
 #     - files
@@ -138,14 +138,25 @@ engines:
     disabled: True
 
 # Requires Tor
-  - name : ahmia
-    engine : ahmia
-    categories : onions
-    shortcut : ah
+#   - name : ahmia
+#     engine : ahmia
+#     categories : onions
+#     shortcut : ah
 
   - name : arch linux wiki
     engine : archlinux
-    shortcut : al
+    shortcut : aw
+    disabled : True
+
+  - name : bbaovanc's Gitea
+    engine : json_engine
+    search_url : https://git.bbaovanc.com/api/v1/repos/search?q={query}&limit=10
+    url_query : html_url
+    title_query : name
+    content_query : description
+    categories : oss
+    shortcut : bg
+    weight : 2
 
   - name : archive is
     engine : xpath
@@ -184,6 +195,7 @@ engines:
   - name : bing
     engine : bing
     shortcut : bi
+    disabled : True  # TODO: enable later
 
   - name : bing images
     engine : bing_images
@@ -204,9 +216,9 @@ engines:
     url_xpath : //article[@class="repo-summary"]//a[@class="repo-link"]/@href
     title_xpath : //article[@class="repo-summary"]//a[@class="repo-link"]
     content_xpath : //article[@class="repo-summary"]/p
-    categories : it
+    categories : oss
     timeout : 4.0
-    disabled : True
+    disabled : False
     shortcut : bb
     about:
       website: https://bitbucket.org/
@@ -273,7 +285,7 @@ engines:
     engine : duckduckgo_definitions
     shortcut : ddd
     weight : 2
-    disabled : True
+    disabled : False
     tests: *tests_infobox
 
 # cloudflare protected
@@ -326,18 +338,19 @@ engines:
     shortcut : wd
     timeout : 3.0
     weight : 2
+    disabled : True
     tests: *tests_infobox
 
   - name : duckduckgo
     engine : duckduckgo
     shortcut : ddg
-    disabled : True
+    disabled : False
 
   - name : duckduckgo images
     engine : duckduckgo_images
     shortcut : ddi
     timeout: 3.0
-    disabled : True
+    disabled : False
 
   - name : etools
     engine : etools
@@ -394,14 +407,14 @@ engines:
   - name : free software directory
     engine : mediawiki
     shortcut : fsd
-    categories : it
+    categories : oss
     base_url : https://directory.fsf.org/
     number_of_results : 5
 # what part of a page matches the query string: title, text, nearmatch
 # title - query matches title, text - query matches the text of page, nearmatch - nearmatch in title
     search_type : title
     timeout : 5.0
-    disabled : True
+    disabled : False
     about:
       website: https://directory.fsf.org/
       wikidata_id: Q2470288
@@ -450,6 +463,7 @@ engines:
   - name : github
     engine : github
     shortcut : gh
+    categories : oss
 
     # This a Gitea service. If you would like to use a different instance,
     # change codeberg.org to URL of the desired Gitea host. Or you can create
@@ -460,9 +474,9 @@ engines:
     url_query : html_url
     title_query : name
     content_query : description
-    categories : it
+    categories : oss
     shortcut : cb
-    disabled : True
+    disabled : False
     about:
       website: https://codeberg.org/
       wikidata_id:
@@ -474,6 +488,7 @@ engines:
   - name : google
     engine : google
     shortcut : go
+    disabled : True
 
   - name : google images
     engine : google_images
@@ -716,8 +731,8 @@ engines:
     title_query : package/name
     content_query : package/description
     page_size : 25
-    categories : it
-    disabled: True
+    categories : oss
+    disabled: False
     timeout: 5.0
     shortcut : npm
     about:
@@ -729,9 +744,9 @@ engines:
       results: JSON
 
 # Requires Tor
-  - name : not evil
-    engine : not_evil
-    shortcut : ne
+#   - name : not evil
+#     engine : not_evil
+#     shortcut : ne
 
   - name : nyaa
     engine : nyaa
@@ -798,9 +813,9 @@ engines:
     url_xpath : //li[@class="search-result"]//h3[@class="title"]/a/@href
     title_xpath : //li[@class="search-result"]//h3[@class="title"]/a
     content_xpath : //li[@class="search-result"]//div[@class="search-snippet-info"]//p[@class="search-snippet"]
-    categories : files
+    categories : oss
     timeout : 4.0
-    disabled : True
+    disabled : False
     shortcut : or
     about:
       website: https://openrepos.net/
@@ -946,7 +961,7 @@ engines:
     engine : startpage
     shortcut : sp
     timeout : 6.0
-    disabled : True
+    disabled : True  # TODO: might want to enable
     additional_tests:
       rosebud: *test_rosebud
 
@@ -998,7 +1013,7 @@ engines:
   - name : yahoo
     engine : yahoo
     shortcut : yh
-    disabled : True
+    disabled : True  # TODO: enable
 
   - name : yandex
     engine : yandex
@@ -1063,7 +1078,7 @@ engines:
     base_url : "https://{language}.wikinews.org/"
     number_of_results : 5
     search_type : text
-    disabled : True
+    disabled : False
     about:
       website: https://www.wikinews.org/
       wikidata_id: Q964
@@ -1143,6 +1158,7 @@ engines:
   - name : dictzone
     engine : dictzone
     shortcut : dc
+    disabled : True
 
   - name : mymemory translated
     engine : translated
@@ -1253,7 +1269,7 @@ engines:
     paging : True
     base_url : https://peer.tube/
     categories: videos
-    disabled : True
+    disabled : False
 
 #  - name : yacy
 #    engine : yacy
