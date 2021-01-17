@@ -41,7 +41,7 @@ ui:
     default_locale : "" # Default interface locale - leave blank to detect from browser information or use codes from the 'locales' config section
     theme_args :
         oscar_style : logicodev-dark # default style of oscar
-   results_on_new_tab: True  # Open result links in a new tab by default
+    results_on_new_tab: True  # Open result links in a new tab by default
 #   categories_order :
 #     - general
 #     - files
@@ -148,16 +148,6 @@ engines:
     shortcut : aw
     disabled : True
 
-  - name : bbaovanc's Gitea
-    engine : json_engine
-    search_url : https://git.bbaovanc.com/api/v1/repos/search?q={query}&limit=10
-    url_query : html_url
-    title_query : name
-    content_query : description
-    categories : oss
-    shortcut : bg
-    weight : 2
-
   - name : archive is
     engine : xpath
     search_url : https://archive.is/{query}
@@ -191,6 +181,17 @@ engines:
     engine : wikipedia
     shortcut : wp
     base_url : 'https://{language}.wikipedia.org/'
+    disabled : True
+
+  - name : bbaovanc's Gitea
+    engine : json_engine
+    search_url : https://git.bbaovanc.com/api/v1/repos/search?q={query}&limit=10
+    url_query : html_url
+    title_query : name
+    content_query : description
+    categories : oss
+    shortcut : bg
+    weight : 2
 
   - name : bing
     engine : bing
@@ -448,10 +449,10 @@ engines:
     title_query : name_with_namespace
     content_query : description
     page_size : 20
-    categories : it
+    categories : oss
     shortcut : gl
     timeout : 10.0
-    disabled : True
+    disabled : False
     about:
       website: https://about.gitlab.com/
       wikidata_id: Q16639197
