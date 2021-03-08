@@ -394,8 +394,8 @@ clone_searx() {
         info_msg "create local branch ${GIT_BRANCH} from start point: origin/${GIT_BRANCH}"
         git branch "${GIT_BRANCH}" "origin/${GIT_BRANCH}"
     fi
-    if [[ ! $(git branch --show-current) == "${GIT_BRANCH}" ]]; then
-        warn_msg "take into account, installing branch $GIT_BRANCH while current branch is $(git branch --show-current)"
+    if [[ ! $(git rev-parse --abbrev-ref HEAD) == "${GIT_BRANCH}" ]]; then
+        warn_msg "take into account, installing branch $GIT_BRANCH while current branch is $(git rev-parse --abbrev-ref HEAD)"
     fi
     export SERVICE_HOME
     git_clone "$REPO_ROOT" "$SEARX_SRC" \
@@ -503,7 +503,6 @@ pip install -U pip
 pip install -U setuptools
 pip install -U wheel
 pip install -U pyyaml
-pip install -U -e .
 cd ${SEARX_SRC}
 pip install -e .
 EOF

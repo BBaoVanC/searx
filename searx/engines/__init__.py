@@ -26,6 +26,7 @@ from operator import itemgetter
 from searx import settings
 from searx import logger
 from searx.data import ENGINES_LANGUAGES
+from searx.exceptions import SearxEngineResponseException
 from searx.poolrequests import get, get_proxy_cycles
 from searx.utils import load_module, match_language, get_engine_from_settings, gen_useragent
 
@@ -291,6 +292,8 @@ def initialize_engines(engine_list):
     def engine_init(engine_name, init_fn):
         try:
             init_fn(get_engine_from_settings(engine_name))
+        except SearxEngineResponseException as exc:
+            logger.warn('%s engine: Fail to initialize // %s', engine_name, exc)
         except Exception:
             logger.exception('%s engine: Fail to initialize', engine_name)
         else:
@@ -324,6 +327,7 @@ def _set_https_support_for_engine(engine):
             'is_test': True,
             'category': 'files',
             'raise_for_status': True,
+            'engine_data': {},
         })
 
         if 'url' not in params:

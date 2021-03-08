@@ -24,13 +24,12 @@ LXC_HOST_PREFIX="${LXC_HOST_PREFIX:-test}"
 LXC_SHARE_FOLDER="/share"
 LXC_REPO_ROOT="${LXC_SHARE_FOLDER}/$(basename "${REPO_ROOT}")"
 
-ubu1604_boilerplate="
+ubu1804_boilerplate="
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get upgrade -y
 apt-get install -y git curl wget
 "
-ubu1804_boilerplate="$ubu1604_boilerplate"
 ubu1904_boilerplate="$ubu1804_boilerplate"
 
 # shellcheck disable=SC2034
@@ -50,7 +49,7 @@ echo 'Set disable_coredump false' >> /etc/sudo.conf
 "
 
 # shellcheck disable=SC2034
-fedora31_boilerplate="
+fedora33_boilerplate="
 dnf update -y
 dnf install -y git curl wget hostname
 echo 'Set disable_coredump false' >> /etc/sudo.conf
@@ -59,7 +58,7 @@ echo 'Set disable_coredump false' >> /etc/sudo.conf
 # shellcheck disable=SC2034
 centos7_boilerplate="
 yum update -y
-yum install -y git curl wget hostname sudo
+yum install -y git curl wget hostname sudo which
 echo 'Set disable_coredump false' >> /etc/sudo.conf
 "
 

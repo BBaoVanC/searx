@@ -1,7 +1,8 @@
 name: "Update searx.data"
 on:
   schedule:
-    - cron: "05 08 * * 5"
+    - cron: "05 06 1 * *"
+  workflow_dispatch:
 
 jobs:
   updateData:
@@ -11,12 +12,12 @@ jobs:
     strategy:
       matrix:
         fetch:
-          - ahmia_blacklist
-          - currencies
-          - external_bangs
-          - firefox_version
-          - languages
-          - wikidata_units
+          - update_ahmia_blacklist.py
+          - update_currencies.py
+          - update_external_bangs.py
+          - update_firefox_version.py
+          - update_languages.py
+          - update_wikidata_units.py
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,24 +32,16 @@ jobs:
           python-version: '3.9'
           architecture: 'x64'
 
-      - name: Cache Python dependencies
-        id: cache-python
-        uses: actions/cache@v2
-        with:
-          path: ./local
-          key: python-ubuntu-20.04-3.9-${{ hashFiles('requirements*.txt', 'setup.py') }}
-
       - name: Install Python dependencies
-        if: steps.cache-python.outputs.cache-hit != 'true'
         run: |
           make V=1 install
 
       - name: Fetch data
         env:
-          FETCH_SCRIPT: utils/fetch_${{ matrix.fetch }}.py
+          FETCH_SCRIPT: ./searx_extra/update/${{ matrix.fetch }}
         run: |
           source local/py3/bin/activate
-          python $FETCH_SCRIPT
+          $FETCH_SCRIPT
 
       - name: Create Pull Request
         id: cpr
