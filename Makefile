@@ -94,15 +94,14 @@ project: buildenv useragents.update engines.languages
 
 engines.languages:  pyenvinstall
 	$(Q)echo "fetch languages .."
-	$(Q)$(PY_ENV_ACT); python utils/fetch_languages.py
-	$(Q)echo "update searx/data/engines_languages.json"
-	$(Q)mv engines_languages.json searx/data/engines_languages.json
-	$(Q)echo "update searx/languages.py"
-	$(Q)mv languages.py searx/languages.py
+	$(Q)$(PY_ENV_ACT); python ./searx_extra/update/update_languages.py
+	$(Q)echo "updated searx/data/engines_languages.json"
+	$(Q)echo "updated searx/languages.py"
 
 useragents.update:  pyenvinstall
-	$(Q)echo "Update searx/data/useragents.json with the most recent versions of Firefox."
-	$(Q)$(PY_ENV_ACT); python utils/fetch_firefox_version.py
+	$(Q)echo "fetch useragents .."
+	$(Q)$(PY_ENV_ACT); python ./searx_extra/update/update_firefox_version.py
+	$(Q)echo "updated searx/data/useragents.json with the most recent versions of Firefox."
 
 buildenv: pyenv
 	$(Q)$(PY_ENV_ACT); SEARX_DEBUG=1 python utils/build_env.py
@@ -126,8 +125,8 @@ node.clean:
 # build themes
 # ------------
 
-PHONY += themes.bootstrap themes themes.oscar themes.simple
-themes: buildenv themes.bootstrap themes.oscar themes.simple
+PHONY += themes themes.oscar themes.simple
+themes: buildenv themes.oscar themes.simple
 
 quiet_cmd_lessc = LESSC     $3
       cmd_lessc = PATH="$$(npm bin):$$PATH" \
@@ -144,9 +143,6 @@ themes.oscar: node.env
 themes.simple: node.env
 	$(Q)echo '[!] build simple theme'
 	$(call cmd,grunt,searx/static/themes/simple/gruntfile.js)
-
-themes.bootstrap: node.env
-	$(call cmd,lessc,less/bootstrap/bootstrap.less,css/bootstrap.min.css)
 
 
 # docker
@@ -195,7 +191,11 @@ PYLINT_FILES=\
 	searx/engines/google_videos.py \
 	searx/engines/google_images.py \
 	searx/engines/mediathekviewweb.py \
+	searx/engines/solidtorrents.py \
+	searx/engines/solr.py \
 	searx/engines/google_scholar.py \
+	searx/engines/yahoo_news.py \
+	searx/engines/apkmirror.py \
 	searx_extra/update/update_external_bangs.py
 
 test.pylint: pyenvinstall
