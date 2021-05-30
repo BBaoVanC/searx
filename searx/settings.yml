@@ -2,6 +2,7 @@ general:
     debug : False # Debug mode, only for development
     instance_name : "bbaovanc's searx" # displayed name
     contact_url: "mailto:searx-contact@bbaovanc.com" # mailto:contact@example.com
+    enable_stats: False # activate /stats page - note: it may leak usage data
 
 brand:
     git_url: https://github.com/BBaoVanC/searx
@@ -67,19 +68,17 @@ ui:
 #    key : !!binary "your_morty_proxy_key"
 
 outgoing: # communication with search engines
-    request_timeout : 2.0 # default timeout in seconds, can be override by engine
+    request_timeout : 3.0 # default timeout in seconds, can be override by engine
     # max_request_timeout: 10.0 # the maximum timeout in seconds
     useragent_suffix : "" # suffix of searx_useragent, could contain informations like an email address to the administrator
-    pool_connections : 100 # Number of different hosts
-    pool_maxsize : 10 # Number of simultaneous requests by host
+    pool_connections : 100 # The maximum number of concurrent connections that may be established.
+    pool_maxsize : 20 # Allow the connection pool to maintain keep-alive connections below this point.
+    enable_http2: True  # See https://www.python-httpx.org/http2/
 # uncomment below section if you want to use a proxy
 # see https://2.python-requests.org/en/latest/user/advanced/#proxies
 # SOCKS proxies are also supported: see https://2.python-requests.org/en/latest/user/advanced/#socks
 #    proxies:
-#        http:
-#            - http://proxy1:8080
-#            - http://proxy2:8080
-#        https:
+#        all://:
 #            - http://proxy1:8080
 #            - http://proxy2:8080
 #    using_tor_proxy : True
@@ -89,6 +88,7 @@ outgoing: # communication with search engines
 #    source_ips:
 #        - 1.1.1.1
 #        - 1.1.1.2
+#        - fe80::/126
 
 # External plugin configuration
 # See http://searx.github.io/searx/dev/plugins.html for more details
@@ -103,6 +103,18 @@ outgoing: # communication with search engines
 # enabled_plugins:
 #   - "HTTPS rewrite"
 #   - ...
+
+# Example to rewrite hostnames in external links
+#
+# enabled_plugins:
+#   - 'Hostname replace'
+# hostname_replace:
+#   '(.*\.)?youtube\.com$':           'invidious.example.com'
+#   '(.*\.)?youtu\.be$':              'invidious.example.com'
+#   '(.*\.)?youtube-noocookie\.com$': 'yotter.example.com'
+#   '(.*\.)?reddit\.com$':            'teddit.example.com'
+#   '(.*\.)?redd\.it$':               'teddit.example.com'
+#   '(www\.)?twitter\.com$':          'nitter.example.com'
 
 checker:
     # disable checker when in debug mode
@@ -170,7 +182,7 @@ engines:
 
   - name : archive is
     engine : xpath
-    search_url : https://archive.is/{query}
+    search_url : https://archive.is/search/?q={query}
     url_xpath : (//div[@class="TEXT-BLOCK"]/a)/@href
     title_xpath : (//div[@class="TEXT-BLOCK"]/a)
     content_xpath : //div[@class="TEXT-BLOCK"]/ul/li
@@ -178,6 +190,7 @@ engines:
     timeout : 7.0
     disabled : True
     shortcut : ai
+    soft_max_redirects: 1
     about:
       website: https://archive.is/
       wikidata_id: Q13515725
@@ -207,6 +220,22 @@ engines:
     shortcut : wp
     base_url : 'https://{language}.wikipedia.org/'
     disabled : True
+    
+    #The fulltext and title parameter is necessary for Wikimini because sometimes it will not show the results and redirect instead
+  - name: wikimini
+    engine: xpath
+    shortcut: wkmn
+    search_url : https://fr.wikimini.org/w/index.php?search={query}&title=Sp%C3%A9cial%3ASearch&fulltext=Search
+    url_xpath : //li/div[@class="mw-search-result-heading"]/a/@href
+    title_xpath : //li//div[@class="mw-search-result-heading"]/a
+    content_xpath : //li/div[@class="searchresult"]
+    categories : general
+    about:
+      website: https://wikimini.org/
+      wikidata_id: Q3568032
+      use_official_api: false
+      require_api_key: false
+      results: HTML
 
   - name : bbaovanc's Gitea
     engine : json_engine
@@ -280,6 +309,13 @@ engines:
     engine : ccengine
     categories : images
     shortcut : cce
+
+# - name : core.ac.uk
+#   engine : core
+#   categories : science
+#   shortcut : cor
+#   # get your API key from: https://core.ac.uk/api-keys/register/
+#   api_key : 'unset'
 
   - name : crossref
     engine : json_engine
@@ -856,6 +892,16 @@ engines:
     url: https://thepiratebay.org/
     timeout : 3.0
 
+# Required dependency: psychopg2
+#  - name : postgresql
+#    engine : postgresql
+#    database : postgres
+#    username : postgres
+#    password : postgres
+#    limit : 10
+#    query_str : 'SELECT * from my_table WHERE my_column = %(query)s'
+#    shortcut : psql
+
   - name : pubmed
     engine : pubmed
     shortcut : pub
@@ -874,11 +920,13 @@ engines:
     engine : qwant
     shortcut : qwi
     categories : images
+    network: qwant
 
   - name : qwant news
     engine : qwant
     shortcut : qwn
     categories : news
+    network: qwant
 
 #  - name: library
 #    engine: recoll
@@ -976,6 +1024,15 @@ engines:
 #    query_fields : '' # query fields
 #    enable_http : True
 
+# - name : springer nature
+#   engine : springer
+#   # get your API key from: https://dev.springernature.com/signup
+#   api_key : 'unset' # working API key, for test & debug: "a69685087d07eca9f13db62f65b8f601"
+#   disabled: True
+#   shortcut : springer
+#   categories : science
+#   timeout : 6.0
+
   - name : startpage
     engine : startpage
     shortcut : sp
@@ -995,6 +1052,13 @@ engines:
     shortcut : solid
     timeout : 3.0
     disabled : True
+
+#  - name : sqlite
+#    engine : sqlite
+#    shortcut: sq
+#    database : mydb
+#    query_str : 'SELECT * FROM mytable WHERE fieldname=:query'
+#    disabled : True
 
   - name : torrentz
     engine : torrentz
@@ -1189,6 +1253,16 @@ engines:
     # See : http://mymemory.translated.net/doc/usagelimits.php
     # api_key : ''
 
+# Required dependency: mysql-connector-python
+#  - name : mysql
+#    engine : mysql_server
+#    database : mydatabase
+#    username : user
+#    password : pass
+#    limit : 10
+#    query_str : 'SELECT * from mytable WHERE fieldname=%(query)s'
+#    shortcut : mysql
+
   - name : 1337x
     engine : 1337x
     shortcut : 1337x
@@ -1224,6 +1298,26 @@ engines:
       use_official_api: false
       require_api_key: false
       results: HTML
+ 
+  - name : dogpile
+    shortcut : dp
+    engine : xpath
+    paging : True
+    # Doesn't work without the 'sc' parameter
+    search_url : https://www.dogpile.com/serp?q={query}&page={pageno}&sc=Gp0GqqlRVflv20
+    url_xpath : //span[@class="web-bing__url"]
+    title_xpath : //a[@class="web-bing__title"]
+    content_xpath : //span[@class="web-bing__description"]
+    page_size : 9
+    categories : general
+    timeout : 7.0
+    disabled : True
+    about:
+      website: https://www.dogpile.com
+      wikidata_id: Q3595363
+      use_official_api: false
+      require_api_key: false
+      results: html
 
   - name : naver
     shortcut: nvr
@@ -1438,6 +1532,11 @@ doi_resolvers :
   oadoi.org : 'https://oadoi.org/'
   doi.org : 'https://doi.org/'
   doai.io  : 'https://dissem.in/'
-  sci-hub.tw : 'https://sci-hub.tw/'
+  sci-hub.se : 'https://sci-hub.se/'
+  sci-hub.do : 'https://sci-hub.do/'
+  scihubtw.tw : 'https://scihubtw.tw/'
+  sci-hub.st : 'https://sci-hub.st/'
+  sci-hub.bar : 'https://sci-hub.bar/'
+  sci-hub.it.nf : 'https://sci-hub.it.nf/'
 
 default_doi_resolver : 'oadoi.org'
